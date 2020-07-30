@@ -13,11 +13,14 @@ if __name__ == '__main__':
 
     settings.app = app
     settings.db = db
+
     import models
+    import teleinfo
 
     db.create_all()
     db.session.commit()
 
+    teleinfo.main()
 #    conso = models.Consumption(1, 2, 3, 4, 5)
 #    db.session.add(conso)
 #    db.session.commit()
