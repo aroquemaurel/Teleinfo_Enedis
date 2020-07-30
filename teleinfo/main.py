@@ -17,3 +17,7 @@ if __name__ == '__main__':
 
     db.create_all()
     db.session.commit()
+
+#    conso = models.Consumption(1, 2, 3, 4, 5)
+#    db.session.add(conso)
+#    db.session.commit()
