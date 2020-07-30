@@ -1,4 +1,4 @@
-from settings.prod import *
+from config.prod import db_user, db_password, db_url, db_table
 
 
 class Settings:
