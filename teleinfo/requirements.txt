@@ -1,3 +1,5 @@
 mysql-connector-python
 SQLAlchemy
 pySerial
+Flask
+Flask-SQLAlchemy
