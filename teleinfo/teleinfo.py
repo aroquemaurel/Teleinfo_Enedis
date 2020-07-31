@@ -1,54 +1,22 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# __author__ = "Sébastien Reuiller"
-# __licence__ = "Apache License 2.0"
-
-# Python 3, prerequis : pip install pySerial influxdb
-#
-# Exemple de trame:
-# {
-#  'OPTARIF': 'HC..',        # option tarifaire
-#  'IMAX': '007',            # intensité max
-#  'HCHC': '040177099',      # index heure creuse en Wh
-#  'IINST': '005',           # Intensité instantanée en A
-#  'PAPP': '01289',          # puissance Apparente, en VA
-#  'MOTDETAT': '000000',     # Mot d'état du compteur
-#  'HHPHC': 'A',             # Horaire Heures Pleines Heures Creuses
-#  'ISOUSC': '45',           # Intensité souscrite en A
-#  'ADCO': '000000000000',   # Adresse du compteur
-#  'HCHP': '035972694',      # index heure pleine en Wh
-#  'PTEC': 'HP..'            # Période tarifaire en cours
-# }
-
-
 import serial
-import logging
-import time
-import requests
-from datetime import datetime
+
+from serial import Serial, PARITY_NONE, STOPBITS_ONE, SEVENBITS
+
 import models
-from settings import Settings
+from settings import Settings, Logging
 
-# clés téléinfo
-int_measure_keys = ['IMAX', 'HCHC', 'IINST', 'PAPP', 'ISOUSC', 'ADCO', 'HCHP']
 
-# création du logguer
-logging.basicConfig(filename='/var/log/teleinfo/releve.log', level=logging.INFO, format='%(asctime)s %(message)s')
-logging.info("Teleinfo starting..")
+class Teleinfo():
+    int_measure_keys = ['IMAX', 'HCHC', 'IINST', 'PAPP', 'ISOUSC', 'ADCO', 'HCHP']
+    serial = None
+    settings = Settings.singleton()
 
-def main():
-    with serial.Serial(port='/dev/ttyAMA0', baudrate=1200, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE,
-                       bytesize=serial.SEVENBITS, timeout=1) as ser:
-
-        logging.info("Teleinfo is reading on /dev/ttyAMA0..")
-
-        # boucle pour partir sur un début de trame
-        line = ser.readline()
-        while b'\x02' not in line:  # recherche du caractère de début de trame
-            line = ser.readline()
+    def run(self):
+        self.build_serial()
+        self.search_beginning_trame()
 
         # lecture de la première ligne de la première trame
-        line = ser.readline()
+        line = self.read_line()
 
         consumption = None
         last_consumption = None
@@ -57,9 +25,10 @@ def main():
             ar = line_str.split(" ")
             try:
                 key = ar[0]
-                if key == 'ADCO': # Begining of block 
+                if key == 'ADCO':  # Begining of block
                     if consumption is not None:
-                        if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (consumption.datetime - last_consumption.datetime).seconds > 30:
+                        if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (
+                                consumption.datetime - last_consumption.datetime).seconds > 30:
                             Settings.singleton().db.session.add(consumption)
                             Settings.singleton().db.session.commit()
 
@@ -67,16 +36,14 @@ def main():
 
                     consumption = models.Consumption()
                 elif consumption is None:
-                    logging.warning("We search the beginning of first trame")
-                    line = ser.readline()
+                    Logging.warning("We search the beginning of first trame")
+                    line = self.read_line()
                     continue
 
-                if key in int_measure_keys :
+                if key in self.int_measure_keys:
                     value = int(ar[1])
                 else:
                     value = ar[1]
-
-                checksum = ar[2]
 
                 if key == 'HCHP':
                     consumption.index_hp = value
@@ -91,8 +58,28 @@ def main():
                         consumption.periode = 2
 
             except Exception as e:
-                logging.error("Exception : %s" % e)
+                Logging.error("Exception : %s" % e)
 
-            line = ser.readline()
-            
+            line = self.read_line()
 
+        self.close_serial()
+
+    def search_beginning_trame(self):
+        line = self.read_line()
+        while b'\x02' not in line:  # search the beginning trame character
+            line = self.read_line()
+
+    def build_serial(self):
+        self.serial = Serial(port=Settings.singleton().serial_dev,
+                             baudrate=1200,
+                             parity=PARITY_NONE,
+                             stopbits=STOPBITS_ONE,
+                             bytesize=SEVENBITS, timeout=1)
+        Logging.info("Teleinfo is reading on " + self.settings.serial_dev + "...")
+
+    def read_line(self):
+        return self.serial.readline()
+
+    def close_serial(self):
+        self.serial.close()
+        self.serial = None
