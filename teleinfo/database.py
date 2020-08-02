@@ -32,3 +32,7 @@ class Database:
     def close(self):
         if self.db is not None:
             self.db.session.close()
+
+    def commit_model(self, model):
+        self.db.session.add(model)
+        self.db.session.commit()

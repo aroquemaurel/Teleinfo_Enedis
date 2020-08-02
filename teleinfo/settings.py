@@ -18,6 +18,9 @@ class Settings:
         logging.info("Teleinfo starting..")
 
     def init_db(self):
+        if self.database is not None:
+            self.database.close()
+
         self.database = Database()
 
     def service_already_running(self):
@@ -48,6 +51,10 @@ class Settings:
     def remove_error_file(self):
         if self.has_error():
             os.unlink(self.errorfile)
+
+    def database_is_init(self):
+        return self.database is not None \
+               and self.database.db is not None
 
 
 class Logging:

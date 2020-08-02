@@ -7,9 +7,10 @@ from Keywords import Keyword
 from settings import Settings, Logging
 
 
-class Teleinfo():
+class Teleinfo:
     serial = None
     settings = Settings.singleton()
+    database = settings.database
 
     def run(self):
         nb_error = 0
@@ -34,8 +35,7 @@ class Teleinfo():
                     if consumption is not None:
                         if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (
                                 consumption.datetime - last_consumption.datetime).seconds > 30:
-                            Settings.singleton().database.db.session.add(consumption)
-                            Settings.singleton().database.db.session.commit()
+                            self.database.commit_model(consumption)
 
                         last_consumption = consumption
 
@@ -72,10 +72,9 @@ class Teleinfo():
                 try:
                     Logging.error("Exception : %s" % e)
                     self.settings.create_error_file()
-                    if self.settings.database.db is not None:
-                        self.settings.database.db.session.close()
+                    if self.settings.database_is_init() is not None:
+                        self.settings.init_db()
 
-                    self.settings.init_db()
                 except Exception as e:
                     Logging.error("Exception : %s" % e)
 
