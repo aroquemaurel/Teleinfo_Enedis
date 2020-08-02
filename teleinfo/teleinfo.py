@@ -19,6 +19,7 @@ class Teleinfo:
             # lecture de la première ligne de la première trame
             line = self.serial_manager.read_line()
 
+            Logging.info("Reading data from teleinfo")
             consumption = None
             last_consumption = None
             while True:
@@ -78,5 +79,7 @@ class Teleinfo:
 
                 line = self.serial_manager.read_line()
         finally:
-            self.serial_manager.close()
+            if self.serial_manager is not None:
+                self.serial_manager.close()
+                
 
