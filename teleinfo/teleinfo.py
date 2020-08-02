@@ -1,5 +1,6 @@
 import serial
 
+from sqlalchemy.exc import OperationalError
 from serial import Serial, PARITY_NONE, STOPBITS_ONE, SEVENBITS
 
 import models
@@ -57,12 +58,15 @@ class Teleinfo():
                     if value == "HC..":
                         consumption.periode = 2
 
-            except (AttributeError, MySQLdb.OperationalError) as e:
+                self.settings.remove_error_file()
+            except (AttributeError, OperationalError) as e:
+                self.settings.create_error_file()
                 if self.settings.db is not None:
                     self.settings.db.session.close()
 
                 self.settings.init_db()
             except Exception as e:
+                self.settings.create_error_file()
                 Logging.error("Exception : %s" % e)
 
             line = self.read_line()

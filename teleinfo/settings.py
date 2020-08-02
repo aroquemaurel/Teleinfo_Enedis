@@ -14,8 +14,9 @@ class Settings:
     url = db_url
     table = db_table
     serial_dev = "/dev/ttyAMA0"
-    log_file = '/var/logs/pi/teleinfo.log'
+    log_file = '/var/log/pi/teleinfo.log'
     pidfile = "/tmp/teleinfo.pid"
+    errorfile = "/tmp/teleinfo.error"
     pid = str(os.getpid())
 
     def __init__(self):
@@ -33,8 +34,14 @@ class Settings:
     def service_already_running(self):
         return os.path.isfile(self.pidfile)
 
+    def has_error(self):
+        return os.path.isfile(self.errorfile)
+
     def dispose(self):
         os.unlink(self.pidfile)
+        if self.has_error():
+            os.unlink(self.errorfile)
+
         self.db.session.close()
 
     def init_db(self):
@@ -46,6 +53,12 @@ class Settings:
         self.db.create_all()
         self.db.session.commit()
 
+    def create_error_file(self):
+        open(settings.errorfile, 'w').write("")
+
+    def remove_error_file(self):
+        if self.has_error():
+            os.unlink(self.errorfile)
 
 
 class Logging:
