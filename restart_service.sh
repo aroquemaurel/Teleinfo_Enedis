@@ -2,6 +2,7 @@
 
 if ! [ -f /tmp/teleinfo.pid ] 
 then
+	echo "Restart teleinfo service"
 	service teleinfo restart
 fi
 

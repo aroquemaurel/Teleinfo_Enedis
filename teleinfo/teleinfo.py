@@ -35,6 +35,8 @@ class Teleinfo:
                             if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (
                                     consumption.datetime - last_consumption.datetime).seconds > 30:
                                 self.database.commit_model(consumption)
+                                self.settings.remove_error_file()
+                                nb_error = 0
 
                             last_consumption = consumption
 
@@ -61,21 +63,19 @@ class Teleinfo:
                         if value == "HC..":
                             consumption.periode = 2
 
-                    self.settings.remove_error_file()
-                    nb_error = 0
                 except Exception as e:
                     nb_error = nb_error + 1
                     if nb_error > 20:
+                        Logging.error("Too many error. Stop the service.")
                         sys.exit()
 
                     try:
-                        Logging.error("Exception : %s" % e)
+                        Logging.error("Exception no "+str(nb_error)+": %s" % e)
                         self.settings.create_error_file()
-                        if self.settings.database_is_init() is not None:
-                            self.settings.init_db()
+                        self.settings.init_db()
 
-                    except Exception as e:
-                        Logging.error("Exception : %s" % e)
+                    except Exception as e2:
+                        Logging.error("Exception : %s" % e2)
 
                 line = self.serial_manager.read_line()
         finally:

@@ -18,9 +18,12 @@ class Settings:
         logging.info("Teleinfo starting..")
 
     def init_db(self):
-        if self.database is not None:
-            self.database.close()
-
+        try:
+            if self.database is not None:
+                self.database.close()
+        except Exception as e: 
+            Logging.error("Can't close existing database connection. %s" %e)
+            
         self.database = DatabaseManager()
 
     def service_already_running(self):
