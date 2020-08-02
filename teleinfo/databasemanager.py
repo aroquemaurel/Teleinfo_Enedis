@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config.db_prod import db_user, db_password, db_url, db_table
 
 
-class Database:
+class DatabaseManager:
     app = None
     db = None
     user = db_user

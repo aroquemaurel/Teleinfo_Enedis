@@ -1,6 +1,6 @@
 import logging
 import os
-from database import Database
+from databasemanager import DatabaseManager
 
 
 class Settings:
@@ -21,7 +21,7 @@ class Settings:
         if self.database is not None:
             self.database.close()
 
-        self.database = Database()
+        self.database = DatabaseManager()
 
     def service_already_running(self):
         return os.path.isfile(self.pidfile)
