@@ -57,6 +57,11 @@ class Teleinfo():
                     if value == "HC..":
                         consumption.periode = 2
 
+            except (AttributeError, MySQLdb.OperationalError) as e:
+                if self.settings.db is not None:
+                    self.settings.db.session.close()
+
+                self.settings.init_db()
             except Exception as e:
                 Logging.error("Exception : %s" % e)
 

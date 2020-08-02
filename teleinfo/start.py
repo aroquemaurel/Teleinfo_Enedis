@@ -1,30 +1,34 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 
 from settings import Settings, Logging
 
 import logging
+import sys
 
 if __name__ == '__main__':
     settings = Settings.singleton()
-    Logging.info("Start Teleinfo application")
 
-    app = Flask(__name__)
+    
+    if settings.service_already_running():
+        Logging.error("Service teleinfo is already running")
+        sys.exit()
 
-    Logging.info("Initialize MySQL database")
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://'+settings.user+':'+settings.password+'@'+settings.url+'/'+settings.table
-    db = SQLAlchemy(app)
+    open(settings.pidfile, 'w').write(settings.pid)
 
-    settings.app = app
-    settings.db = db
+    try:
+        Logging.info("Start Teleinfo application")
 
-    import models
-    import teleinfo
 
-    Logging.info("Check creation of tables")
-    """ Create tables if needed """
-    db.create_all()
-    db.session.commit()
+        Logging.info("Initialize MySQL database")
+        settings.init_db()
 
-    teleinfo.Teleinfo().run()
+        import models
+        import teleinfo
+
+        Logging.info("Check creation of tables")
+        """ Create tables if needed """
+        settings.init_tables()
+
+        teleinfo.Teleinfo().run()
+    finally:
+        settings.dispose()
 
