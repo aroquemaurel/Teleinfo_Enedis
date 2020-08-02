@@ -5,9 +5,10 @@ from settings import Settings, Logging
 
 class SerialManager:
     serial = None
+    settings = Settings.singleton()
 
     def __init__(self):
-        self.serial = Serial(port=Settings.singleton().serial_dev,
+        self.serial = Serial(port=self.settings.serial_dev,
                              baudrate=1200,
                              parity=PARITY_NONE,
                              stopbits=STOPBITS_ONE,
@@ -19,9 +20,9 @@ class SerialManager:
         self.search_beginning_trame()
 
     def search_beginning_trame(self):
-        line = self.read_line()
+        line = self.serial.readline()
         while b'\x02' not in line:  # search the beginning trame character
-            line = self.read_line()
+            line = self.serial.readline()
 
     def read_line(self):
         return self.serial.readline().decode("utf-8")
