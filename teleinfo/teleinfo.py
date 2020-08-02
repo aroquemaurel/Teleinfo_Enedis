@@ -4,11 +4,11 @@ from sqlalchemy.exc import OperationalError
 from serial import Serial, PARITY_NONE, STOPBITS_ONE, SEVENBITS
 
 import models
+from Keywords import Keyword
 from settings import Settings, Logging
 
 
 class Teleinfo():
-    int_measure_keys = ['IMAX', 'HCHC', 'IINST', 'PAPP', 'ISOUSC', 'ADCO', 'HCHP']
     serial = None
     settings = Settings.singleton()
 
@@ -26,8 +26,12 @@ class Teleinfo():
             line_str = line.decode("utf-8")
             ar = line_str.split(" ")
             try:
-                key = ar[0]
-                if key == 'ADCO':  # Begining of block
+                key = Keyword.value_of(ar[0])
+                if key is None:
+                    line = self.read_line()
+                    continue
+
+                if key == Keyword.ADCO:  # Begining of block
                     if consumption is not None:
                         if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (
                                 consumption.datetime - last_consumption.datetime).seconds > 30:
@@ -42,20 +46,20 @@ class Teleinfo():
                     line = self.read_line()
                     continue
 
-                if key in self.int_measure_keys:
+                if key.is_int_value():
                     value = int(ar[1])
                 else:
                     value = ar[1]
 
-                if key == 'HCHP':
+                if key == Keyword.HCHP:
                     consumption.index_hp = value
-                elif key == 'HCHC':
+                elif key == Keyword.HCHC:
                     consumption.index_hc = value
-                elif key == 'IINST':
+                elif key == Keyword.IINST:
                     consumption.intensite_inst = value
-                elif key == 'PAPP':
+                elif key == Keyword.PAPP:
                     consumption.puissance_apparente = value
-                elif key == 'PTEC':
+                elif key == Keyword.PTEC:
                     if value == "HC..":
                         consumption.periode = 2
 
