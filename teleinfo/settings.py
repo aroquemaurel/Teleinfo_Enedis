@@ -54,7 +54,8 @@ class Settings:
         self.db.session.commit()
 
     def create_error_file(self):
-        open(settings.errorfile, 'w').write("")
+        if self.has_error():
+            open(settings.errorfile, 'w').write("")
 
     def remove_error_file(self):
         if self.has_error():
