@@ -13,6 +13,7 @@ class Teleinfo():
     settings = Settings.singleton()
 
     def run(self):
+        nb_error = 0
         self.build_serial()
         self.search_beginning_trame()
 
@@ -59,15 +60,22 @@ class Teleinfo():
                         consumption.periode = 2
 
                 self.settings.remove_error_file()
-            except (AttributeError, OperationalError) as e:
-                self.settings.create_error_file()
-                if self.settings.db is not None:
-                    self.settings.db.session.close()
-
-                self.settings.init_db()
+                nb_error = 0
             except Exception as e:
-                self.settings.create_error_file()
-                Logging.error("Exception : %s" % e)
+                nb_error = nb_error + 1
+                if nb_error > 20:
+                    sys.exit()
+
+                try:
+                    Logging.error("Exception : %s" % e)
+                    self.settings.create_error_file()
+                    if self.settings.db is not None:
+                        self.settings.db.session.close()
+
+                    self.settings.init_db()
+                except Exception as e:
+                    Logging.error("Exception : %s" % e)
+
 
             line = self.read_line()
 
