@@ -46,7 +46,7 @@ class Keyword(Enum):
             if keyword.name() == name:
                 if keyword.is_unsupported_keyword():
                     raise Exception("Keyword with space are currently not supported")
-                
+
                 return keyword
 
         return None

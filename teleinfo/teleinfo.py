@@ -1,6 +1,5 @@
-import serial
+import sys
 
-from sqlalchemy.exc import OperationalError
 from serial import Serial, PARITY_NONE, STOPBITS_ONE, SEVENBITS
 
 import models
@@ -79,7 +78,6 @@ class Teleinfo():
                     self.settings.init_db()
                 except Exception as e:
                     Logging.error("Exception : %s" % e)
-
 
             line = self.read_line()
 
