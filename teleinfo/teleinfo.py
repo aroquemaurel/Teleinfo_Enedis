@@ -34,8 +34,8 @@ class Teleinfo():
                     if consumption is not None:
                         if last_consumption is None or not last_consumption.has_same_indexes(consumption) or (
                                 consumption.datetime - last_consumption.datetime).seconds > 30:
-                            Settings.singleton().db.session.add(consumption)
-                            Settings.singleton().db.session.commit()
+                            Settings.singleton().database.db.session.add(consumption)
+                            Settings.singleton().database.db.session.commit()
 
                         last_consumption = consumption
 
@@ -72,8 +72,8 @@ class Teleinfo():
                 try:
                     Logging.error("Exception : %s" % e)
                     self.settings.create_error_file()
-                    if self.settings.db is not None:
-                        self.settings.db.session.close()
+                    if self.settings.database.db is not None:
+                        self.settings.database.db.session.close()
 
                     self.settings.init_db()
                 except Exception as e:

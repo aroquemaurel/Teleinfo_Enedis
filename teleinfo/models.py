@@ -1,7 +1,7 @@
 import datetime
 from settings import Settings
 
-db = Settings.singleton().db
+db = Settings.singleton().database.db
 
 
 class Consumption(db.Model):
