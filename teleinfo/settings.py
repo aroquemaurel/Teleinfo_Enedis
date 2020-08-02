@@ -1,18 +1,11 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from config.prod import db_user, db_password, db_url, db_table
 import logging
 import os
-import sys
+from database import Database
+
 
 class Settings:
     __instance__ = None
-    app = None
-    db = None
-    user = db_user
-    password = db_password
-    url = db_url
-    table = db_table
+    database = None
     serial_dev = "/dev/ttyAMA0"
     log_file = '/var/log/pi/teleinfo.log'
     pidfile = "/tmp/teleinfo.pid"
@@ -24,12 +17,8 @@ class Settings:
         logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s %(message)s')
         logging.info("Teleinfo starting..")
 
-    @staticmethod
-    def singleton():
-        if Settings.__instance__ is None:
-            Settings.__instance__ = Settings()
-
-        return Settings.__instance__
+    def init_db(self):
+        self.database = Database()
 
     def service_already_running(self):
         return os.path.isfile(self.pidfile)
@@ -39,19 +28,18 @@ class Settings:
 
     def dispose(self):
         os.unlink(self.pidfile)
+
         if self.has_error():
             os.unlink(self.errorfile)
 
-        self.db.session.close()
+        self.database.close()
 
-    def init_db(self):
-        self.app = Flask(__name__)
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://'+self.user+':'+self.password+'@'+self.url+'/'+self.table
-        self.db = SQLAlchemy(self.app)
+    @staticmethod
+    def singleton():
+        if Settings.__instance__ is None:
+            Settings.__instance__ = Settings()
 
-    def init_tables(self):
-        self.db.create_all()
-        self.db.session.commit()
+        return Settings.__instance__
 
     def create_error_file(self):
         if not self.has_error():
@@ -75,7 +63,7 @@ class Logging:
     @staticmethod
     def info(msg):
         logging.info(msg)
-        print (msg)
+        print(msg)
 
     @staticmethod
     def warning(msg):
