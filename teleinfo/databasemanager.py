@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from config.db_prod import db_user, db_password, db_url, db_table
+from config.db_prod_sqlite import  db_sqlite_base_path
 
 
 class DatabaseManager:
@@ -17,11 +18,12 @@ class DatabaseManager:
 
     def init_db(self):
         self.app = Flask(__name__)
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://' + \
-                                                     self.user + ':' + \
-                                                     self.password + '@' + \
-                                                     self.url + '/' +\
-                                                     self.table
+#        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://' + \
+ #                                                    self.user + ':' + \
+  #                                                   self.password + '@' + \
+   #                                                  self.url + '/' +\
+    #                                                 self.table
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+db_sqlite_base_path
         self.db = SQLAlchemy(self.app)
 
     def init_tables(self):
