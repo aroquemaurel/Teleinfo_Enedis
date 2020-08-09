@@ -1,6 +1,7 @@
 import datetime
 from settings import Settings
 
+
 db = Settings.singleton().database.db
 
 

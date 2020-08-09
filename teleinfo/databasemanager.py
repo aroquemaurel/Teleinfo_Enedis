@@ -8,22 +8,12 @@ from config.db_prod_sqlite import  db_sqlite_base_path
 class DatabaseManager:
     app = None
     db = None
-    user = db_user
-    password = db_password
-    url = db_url
-    table = db_table
 
-    def __init__(self):
-        self.init_db()
+    uri = 'sqlite:////'+db_sqlite_base_path
 
     def init_db(self):
         self.app = Flask(__name__)
-#        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://' + \
- #                                                    self.user + ':' + \
-  #                                                   self.password + '@' + \
-   #                                                  self.url + '/' +\
-    #                                                 self.table
-        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+db_sqlite_base_path
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = self.uri
         self.db = SQLAlchemy(self.app)
 
     def init_tables(self):

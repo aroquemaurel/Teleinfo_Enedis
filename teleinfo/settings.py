@@ -24,7 +24,8 @@ class Settings:
         except Exception as e: 
             Logging.error("Can't close existing database connection. %s" %e)
             
-        self.database = DatabaseManager()
+        self.database = DatabaseManager() 
+        self.database.init_db()
 
     def service_already_running(self):
         return os.path.isfile(self.pidfile)
