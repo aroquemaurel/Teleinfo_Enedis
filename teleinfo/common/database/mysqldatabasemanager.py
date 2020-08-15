@@ -4,9 +4,9 @@ from common.database.databasemanager import DatabaseManager
 from config.config import config_dev
 
 if config_dev:
-    from config.db_prod_mysql import *
-else:
     from config.db_dev_mysql import *
+else:
+    from config.db_prod_mysql import *
 
 
 class MySQLDatabaseManager(DatabaseManager):
