@@ -1,7 +1,12 @@
 from abc import abstractmethod
 
 from common.database.databasemanager import DatabaseManager
-from config.db_prod import db_user, db_password, db_url, db_table
+from config.config import config_dev
+
+if config_dev:
+    from config.db_prod_mysql import *
+else:
+    from config.db_dev_mysql import *
 
 
 class MySQLDatabaseManager(DatabaseManager):

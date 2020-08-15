@@ -1,4 +1,3 @@
-from common.database.databasemanager import DatabaseManager
 from common.database.mysqldatabasemanager import MySQLDatabaseManager
 from common.database.sqlitedatabasemanager import SQLiteDatabaseManager 
 from models.settings import Settings

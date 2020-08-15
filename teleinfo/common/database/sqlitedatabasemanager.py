@@ -1,8 +1,12 @@
 import os
-from abc import abstractmethod
 
 from common.database.databasemanager import DatabaseManager
-from config.db_prod_sqlite import db_sqlite_base_path
+from config.config import config_dev
+
+if config_dev:
+    from config.db_dev_sqlite import *
+else:
+    from config.db_prod_sqlite import *
 
 
 class SQLiteDatabaseManager(DatabaseManager):

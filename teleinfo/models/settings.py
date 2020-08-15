@@ -1,19 +1,19 @@
 import logging
 import os
-from common.database.databasemanager import DatabaseManager
 
 from common.database.databasetype import DatabaseType
 from common.database.mysqldatabasemanager import MySQLDatabaseManager
 from common.database.sqlitedatabasemanager import SQLiteDatabaseManager
+from config.config import *
 
 
 class Settings:
     __instance__ = None
     database = None
-    serial_dev = "/dev/ttyAMA0"
-    log_file = '/var/log/pi/teleinfo.log'
-    pidfile = "/tmp/teleinfo.pid"
-    errorfile = "/tmp/teleinfo.error"
+    serial_dev = config_serial_dev
+    log_file = config_log_file
+    pidfile = config_pidfile
+    errorfile = config_errorfile
     pid = str(os.getpid())
 
     def __init__(self):
