@@ -1,6 +1,10 @@
 import logging
 import os
-from databasemanager import DatabaseManager
+from common.database.databasemanager import DatabaseManager
+
+from common.database.databasetype import DatabaseType
+from common.database.mysqldatabasemanager import MySQLDatabaseManager
+from common.database.sqlitedatabasemanager import SQLiteDatabaseManager
 
 
 class Settings:
@@ -13,18 +17,26 @@ class Settings:
     pid = str(os.getpid())
 
     def __init__(self):
-        # TODO : if /var/log/teleinfo does not exists...
+        if self.log_file is None or not os.path.isfile(self.log_file):
+            self.log_file = "teleinfo.log"
+
         logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s %(message)s')
         logging.info("Teleinfo starting..")
 
-    def init_db(self):
+    def init_db(self, database_type):
         try:
             if self.database is not None:
                 self.database.close()
-        except Exception as e: 
-            Logging.error("Can't close existing database connection. %s" %e)
-            
-        self.database = DatabaseManager() 
+        except Exception as e:
+            Logging.error("Can't close existing database connection. %s" % e)
+
+        if database_type == DatabaseType.SQLITE:
+            Logging.info("Init SQLite database")
+            self.database = SQLiteDatabaseManager()
+        elif database_type == DatabaseType.MYSQL:
+            Logging.info("Init MySQL database")
+            self.database = MySQLDatabaseManager()
+
         self.database.init_db()
 
     def service_already_running(self):

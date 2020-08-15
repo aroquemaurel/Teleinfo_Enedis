@@ -1,7 +1,6 @@
+from common.database.databasetype import DatabaseType
+from models.settings import Settings, Logging
 
-from settings import Settings, Logging
-
-import logging
 import sys
 
 if __name__ == '__main__':
@@ -15,12 +14,11 @@ if __name__ == '__main__':
 
     try:
         Logging.info("Start Teleinfo application")
-        Logging.info("Initialize MySQL database")
-        settings.init_db()
+        settings.init_db(DatabaseType.SQLITE)
 
         # Creation of models
         import models
-        import teleinfo
+        from serial_teleinfo import teleinfo
 
         Logging.info("Check creation of tables")
         settings.database.init_tables()

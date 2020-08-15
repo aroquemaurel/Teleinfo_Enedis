@@ -1,6 +1,6 @@
 from serial import Serial, PARITY_NONE, STOPBITS_ONE, SEVENBITS
 
-from settings import Settings, Logging
+from models.settings import Settings, Logging
 
 
 class SerialManager:

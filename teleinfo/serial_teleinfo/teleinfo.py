@@ -1,9 +1,9 @@
 import sys
 
-import models
-from Keywords import Keyword
-from serialmanager import SerialManager
-from settings import Settings, Logging
+from models import models
+from models.Keywords import Keyword
+from serial_teleinfo.serialmanager import SerialManager
+from models.settings import Settings, Logging
 
 
 class Teleinfo:

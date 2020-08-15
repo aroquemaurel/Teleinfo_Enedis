@@ -1,10 +1,15 @@
-from databasemanager import DatabaseManager
-from mysqldatabasemanager import MySQLDatabaseManager
-from settings import Settings
+from common.database.databasemanager import DatabaseManager
+from common.database.mysqldatabasemanager import MySQLDatabaseManager
+from common.database.sqlitedatabasemanager import SQLiteDatabaseManager 
+from models.settings import Settings
 
 global db
+
+"""
+Synchronize the local database (sqlite) with the remote database (mysql). 
+"""
 if __name__ == '__main__':
-    sqlite_db = DatabaseManager()
+    sqlite_db = SQLiteDatabaseManager()
     mysql_db = MySQLDatabaseManager()
 
     try:
@@ -12,23 +17,16 @@ if __name__ == '__main__':
         mysql_db.init_db()
 
         Settings.singleton().database = mysql_db
-        from models import Consumption
-        max_id = mysql_db.db.session.query(mysql_db.db.func.max(Consumption.id)).scalar()
+        from models import models 
+        max_id = mysql_db.db.session.query(mysql_db.db.func.max(models.Consumption.id)).scalar()
         if max_id is None:
             max_id = 0
 
         Settings.singleton().database = sqlite_db 
-        from models import Consumption
-        data_to_insert = sqlite_db.db.session.query(Consumption).filter(Consumption.id > max_id).all()
+        from models import models 
+        data_to_insert = sqlite_db.db.session.query(models.Consumption).filter(models.Consumption.id > max_id).all()
         for data in data_to_insert:
-            consumption = Consumption()
-            consumption.id = data.id
-            consumption.datetime = data.datetime
-            consumption.periode = data.periode
-            consumption.index_hp = data.index_hp
-            consumption.index_hc = data.index_hc
-            consumption.intensite_inst = data.intensite_inst
-            consumption.puissance_apparente = data.puissance_apparente
+            consumption = models.Consumption(data)
             mysql_db.db.session.add(consumption)
 
         mysql_db.db.session.commit()

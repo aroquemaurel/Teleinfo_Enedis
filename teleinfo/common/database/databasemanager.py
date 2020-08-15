@@ -1,19 +1,25 @@
+from abc import abstractmethod
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
-from config.db_prod import db_user, db_password, db_url, db_table
-from config.db_prod_sqlite import  db_sqlite_base_path
 
 
 class DatabaseManager:
     app = None
     db = None
 
-    uri = 'sqlite:////'+db_sqlite_base_path
+    @property
+    @abstractmethod
+    def uri(self):
+        pass
 
     def init_db(self):
+        from models.settings import Logging
+
+        Logging.info("Init database with uri " + self.uri)
         self.app = Flask(__name__)
         self.app.config['SQLALCHEMY_DATABASE_URI'] = self.uri
+
         self.db = SQLAlchemy(self.app)
 
     def init_tables(self):

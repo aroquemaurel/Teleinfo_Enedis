@@ -1,6 +1,6 @@
 import unittest
 
-from Keywords import Keyword
+from models.Keywords import Keyword
 
 
 class KeywordsTests(unittest.TestCase):
