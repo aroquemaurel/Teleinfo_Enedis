@@ -18,3 +18,8 @@ Il faut faire une copie du fichier teleinfo/config/db_prod_sqlite.py.sample en t
 ### Autres configuration
 Les autres configurations peuvent être changées dans le fichier `teleinfo/config/config.py`
 
+## Grafana
+Vous pouvez utiliser une configuration de grafana pour la visualisation des données. Elle est présente dans grafana/grafana.json
+
+![Image grafana](grafana/capture.png)
+	
