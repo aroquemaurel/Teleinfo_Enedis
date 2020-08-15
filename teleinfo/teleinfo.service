@@ -1,0 +1,21 @@
+[Unit]
+Description=Teleinfo service for Enedis infos
+After=sshd.target 
+ConditionPathExists=!/tmp/teleinfo.pid
+
+[Service]
+User=pi
+Group=pi
+Type=simple
+ExecStart=python3 /home/pi/teleinfo_enedis/teleinfo/start_teleinfo.py
+TimeoutSec=5000
+PIDFile=/tmp/teleinfo.pid
+StartLimitIntervalSec=120
+KillMode=process
+Restart=on-failure
+GuessMainPID = true
+RuntimeDirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
+
